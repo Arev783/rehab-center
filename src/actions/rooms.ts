@@ -30,7 +30,6 @@ export async function createRoom(
       data: { userId: admin.id, action: "CREATE", entity: "Room", entityId: room.id },
     });
   } catch (e) {
-    // P2002 = unique constraint (նույն անունով սենյակ)
     if ((e as { code?: string }).code === "P2002") {
       return { error: "Այդ անունով սենյակ արդեն կա" };
     }
@@ -59,4 +58,32 @@ export async function toggleRoom(formData: FormData) {
   });
 
   revalidatePath("/admin/rooms");
+}
+
+export async function updateRoom(_prev: FormState,
+  formData: FormData):Promise<FormState>{
+const admin = await requireRole("ADMIN");
+const id = String(formData.get("id")?? "");
+if (!id) return { error: "Սենյակի id-ն բացակայում է" };
+ const parsed = roomSchema.safeParse({
+    name: formData.get("name"),
+    capacity: formData.get("capacity"),
+  });
+  if (!parsed.success) return { error: parsed.error.issues[0].message };
+  try{
+   await prisma.room.update({where:{id},data:parsed.data});
+   await prisma.auditLog.create({
+    data:{userId:admin.id,action:"UPDATE",entity:"Room",entityId:id}
+   })
+  }catch(e){
+  if ((e as { code?: string }).code === "P2002") {
+      return { error: "Այդ անունով սենյակ արդեն կա" };
+    }
+    if ((e as { code?: string }).code === "P2025") {
+      return {error:"Այդ սենյակը չի գտնվել"}
+    }
+    throw e;
+  }
+  revalidatePath("/admin/rooms");
+  return {ok:true}
 }
