@@ -10,7 +10,7 @@ export default async function EditroomPage({
    await requireRole("ADMIN");
    const {id} = await params;
 
-   const room = await prisma.room.findUnique({where:{id}});
+   const room = await prisma.room.findUnique({where:{id}}); 
    if(!room) notFound();
    return(
   <main className="mx-auto max-w-md space-y-6 p-8">

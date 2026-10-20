@@ -4,13 +4,21 @@ import { PrismaPg } from "@prisma/adapter-pg";
 const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
 
 function createClient() {
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) {
+    throw new Error("DATABASE_URL is not set");
+  }
+
   const adapter = new PrismaPg({
-    connectionString: process.env.DATABASE_URL!,
+    connectionString,
+    max: Number(process.env.PRISMA_CONNECTION_LIMIT ?? 5),
+    idleTimeoutMillis: 30_000,
+    connectionTimeoutMillis: 5_000,
   });
+
   return new PrismaClient({ adapter });
 }
 
-// dev ռեժիմում hot reload-ի ժամանակ նոր միացումներ չբացելու համար
 export const prisma = globalForPrisma.prisma ?? createClient();
 
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
