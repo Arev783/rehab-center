@@ -85,5 +85,6 @@ if (!id) return { error: "Սենյակի id-ն բացակայում է" };
     throw e;
   }
   revalidatePath("/admin/rooms");
+  revalidatePath(`/admin/rooms/${id}`);
   return {ok:true}
 }

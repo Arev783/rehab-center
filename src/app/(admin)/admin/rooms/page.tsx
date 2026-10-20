@@ -1,10 +1,16 @@
+import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/session";
 import { toggleRoom } from "@/actions/rooms";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
 import { RoomForm } from "./room-form";
 
@@ -38,12 +44,20 @@ export default async function RoomsPage() {
                 </Badge>
               </TableCell>
               <TableCell>
-                <form action={toggleRoom}>
-                  <input type="hidden" name="id" value={r.id} />
-                  <Button type="submit" variant="outline" size="sm">
-                    {r.isActive ? "Անջատել" : "Միացնել"}
-                  </Button>
-                </form>
+                <div className="flex items-center gap-2">
+                  <Link
+                    href={`/admin/rooms/${r.id}`}
+                    className="rounded-lg border px-3 py-1 text-sm hover:bg-muted"
+                  >
+                    Խմբագրել
+                  </Link>
+                  <form action={toggleRoom}>
+                    <input type="hidden" name="id" value={r.id} />
+                    <Button type="submit" variant="outline" size="sm">
+                      {r.isActive ? "Անջատել" : "Միացնել"}
+                    </Button>
+                  </form>
+                </div>
               </TableCell>
             </TableRow>
           ))}
